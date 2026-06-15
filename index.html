@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVW</title>
+    <link rel="stylesheet" href="index.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="public-site">
+        <nav>
+            <div class="nav-logo"><span class="nav-dot"></span> MVW</div>
+            <ul class="nav-links">
+                <li><a href="#about">À propos</a></li>
+                <li><a href="#skills">Compétences</a></li>
+                <li><a href="#projects">Projets</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="btn-admin" onclick="openLogin()">⚙ Admin</button>
+        </nav>
+
+        <div class="hero" id="about">
+            <div class="floating-pills">
+                <div class="pill" id="p1">🎨 CSS</div>
+                <div class="pill" id="p2">⚡ JS</div>
+                <div class="pill" id="p3">⚛️ React</div>
+                <div class="pill" id="p4">🟢 Node</div>
+                <div class="pill" id="p5">🌿 Git</div>
+            </div>
+            <div class="hero-badge"><span class="badge-dot"></span>&nbsp;Disponible pour collaborer</div>
+            <h1 class="hero-title">
+                Salut, moi c'est<br>
+                <span class="hi">MVW</span> <span class="wave">👋</span><br>
+                <span id="typewriter"
+                    style="color:var(--muted);font-size:clamp(1.4rem,3vw,2rem);font-weight:600"></span><span
+                    class="cursor"></span>
+            </h1>
+            <p class="hero-desc">Je développe des pages web pour le plaisir. Des petits projets utiles, des expériences,
+                des outils — pas une agence, juste quelqu'un qui aime vraiment coder.</p>
+            <div class="hero-ctas">
+                <a href="#projects" class="cta-main">Voir mes projets →</a>
+                <a href="#contact" class="cta-ghost">Me contacter</a>
+            </div>
+        </div>
+
+        <hr class="sec-divider">
+
+        <div class="sec" id="skills">
+            <p class="sec-label reveal">Compétences</p>
+            <h2 class="sec-heading reveal">Mon arbre de talents 🌳</h2>
+            <div class="stats-row reveal">
+                <div class="stat-card">
+                    <div class="stat-num" data-target="6">0</div>
+                    <div class="stat-label">Technos dans le sac</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num" data-target="3" style="color:var(--a2)">0</div>
+                    <div class="stat-label">Années de pratique</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num" data-target="0" id="proj-stat" style="color:var(--a3)">0</div>
+                    <div class="stat-label">Projets créés</div>
+                </div>
+            </div>
+            <div class="skills-grid" id="skills-grid"></div>
+        </div>
+
+        <hr class="sec-divider">
+
+        <div class="sec" id="projects">
+            <p class="sec-label reveal">Projets</p>
+            <h2 class="sec-heading reveal">Ce que j'ai construit ✨</h2>
+            <div class="projects-grid" id="public-grid">
+                <div class="proj-empty"><span class="proj-empty-icon">🚀</span>Les projets arrivent bientôt !</div>
+            </div>
+        </div>
+
+        <hr class="sec-divider">
+
+        <div class="sec" id="contact">
+            <div class="contact-wrap reveal">
+                <div>
+                    <span class="contact-emoji">✉️</span>
+                    <h2 class="contact-title">Parlons-en !</h2>
+                    <p class="contact-sub">Une question, une idée, ou juste<br>envie de dire bonjour ? Je réponds.</p>
+                </div>
+                <a href="mailto:votre@email.com" class="contact-btn">Envoyer un email ↗</a>
+            </div>
+        </div>
+
+        <footer>
+            <span class="footer-copy">© 2025 MVW — fait avec ☕ & curiosité</span>
+            <span class="footer-copy" style="cursor:pointer" onclick="openLogin()">·</span>
+        </footer>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="overlay" id="login-overlay">
+        <div class="login-box">
+            <div class="login-header"><span class="login-title">🔐 Accès admin</span><button class="btn-x"
+                    onclick="closeLogin()">×</button></div>
+            <div class="login-body">
+                <div class="form-group">
+                    <label class="form-label">Mot de passe</label>
+                    <input type="password" class="form-input" id="pwd-input" placeholder="••••••••"
+                        onkeydown="if(event.key==='Enter')doLogin()">
+                    <p class="form-error" id="login-err">Mot de passe incorrect.</p>
+                </div>
+                <button class="btn-submit" onclick="doLogin()">Accéder au dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard">
+        <div class="dash-nav">
+            <div class="dash-nav-logo">MVW <span>Dashboard</span></div>
+            <button class="btn-logout" onclick="logout()">← Retour au site</button>
+        </div>
+        <div class="dash-body">
+            <div class="dash-header">
+                <div>
+                    <div class="dash-title">Mes projets</div>
+                    <div class="dash-subtitle" id="proj-count">0 projet publié</div>
+                </div>
+                <button class="btn-add" onclick="openPM()">+ Ajouter un projet</button>
+            </div>
+            <div class="dash-grid" id="dash-grid"></div>
+        </div>
+    </div>
+
+    <!-- PROJECT MODAL -->
+    <div class="pm-overlay" id="pm-overlay">
+        <div class="pm-box">
+            <div class="pm-header"><span class="pm-title" id="pm-modal-title">Nouveau projet</span><button class="btn-x"
+                    onclick="closePM()">×</button></div>
+            <div class="pm-body">
+                <input type="hidden" id="pm-idx">
+                <div class="form-group">
+                    <label class="form-label">Image du projet (facultatif)</label>
+                    <div class="img-preview-wrap">
+                        <input type="file" accept="image/*" onchange="handleImg(event)">
+                        <img id="img-preview" alt="">
+                        <div class="img-placeholder" id="img-placeholder">
+                            <div class="img-ph-icon">🖼️</div>
+                            <div>Cliquer pour ajouter une image</div>
+                            <div style="font-size:11px;opacity:.7;margin-top:2px">JPG, PNG, GIF…</div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="clearImg()" id="clear-img-btn"
+                        style="display:none;font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--font);padding:2px 0">✕
+                        Supprimer l'image</button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Nom du projet *</label><input type="text"
+                            class="form-input" id="pm-name" placeholder="Mon super outil"></div>
+                    <div class="form-group"><label class="form-label">Tag / catégorie</label><input type="text"
+                            class="form-input" id="pm-tag" placeholder="Outil, Jeu…"></div>
+                </div>
+                <div class="form-group"><label class="form-label">Description</label><textarea class="form-input"
+                        id="pm-desc" style="min-height:80px;resize:vertical"
+                        placeholder="Décris ce que fait ce projet…"></textarea></div>
+                <div class="form-group"><label class="form-label">Lien vers le projet</label><input type="url"
+                        class="form-input" id="pm-url" placeholder="https://mon-projet.com"></div>
+                <button class="btn-submit" onclick="saveProject()">💾 Enregistrer le projet</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ── PARTICLES ── */
+        (function () {
+            const canvas = document.getElementById('bg-canvas'), ctx = canvas.getContext('2d');
+            let W, H; const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+            function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight }
+            resize(); window.addEventListener('resize', resize);
+            class P {
+                constructor() { this.reset(true) }
+                reset(init) { this.x = Math.random() * W; this.y = init ? Math.random() * H : H + 10; this.r = Math.random() * 3 + 1; this.c = COLORS[Math.floor(Math.random() * COLORS.length)]; this.vx = (Math.random() - .5) * .4; this.vy = -(Math.random() * .5 + .2); this.pulse = Math.random() * Math.PI * 2 }
+                update() { this.x += this.vx; this.y += this.vy; this.pulse += .02; if (this.y < -10) this.reset(false); if (this.x < -10 || this.x > W + 10) { this.x = Math.random() * W; this.y = H + 10 } }
+                draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2); ctx.fillStyle = this.c; ctx.globalAlpha = .2 + Math.sin(this.pulse) * .12; ctx.fill() }
+            }
+            const ps = Array.from({ length: 60 }, () => new P());
+            function loop() { ctx.clearRect(0, 0, W, H); ctx.globalAlpha = 1; ps.forEach(p => { p.update(); p.draw() }); requestAnimationFrame(loop) }
+            loop();
+        })();
+
+        /* ── FLOATING PILLS ── */
+        (function () {
+            const pills = [{ id: 'p1', x: 60, y: 120, ax: .7, ay: .5 }, { id: 'p2', x: 200, y: 60, ax: .5, ay: .8 }, { id: 'p3', x: 140, y: 200, ax: .9, ay: .4 }, { id: 'p4', x: 260, y: 160, ax: .6, ay: .7 }, { id: 'p5', x: 80, y: 260, ax: .8, ay: .6 }];
+            let t = 0;
+            function animate() { t += .012; pills.forEach(p => { const el = document.getElementById(p.id); if (!el) return; el.style.left = p.x + 'px'; el.style.top = p.y + 'px'; el.style.transform = `translate(${Math.sin(t * p.ax) * 14}px,${Math.cos(t * p.ay) * 10}px)` }); requestAnimationFrame(animate) }
+            animate();
+        })();
+
+        /* ── TYPEWRITER ── */
+        (function () {
+            const phrases = ['je code pour le fun.', 'je construis des outils.', 'j\'explore de nouvelles idées.', 'j\'apprends chaque jour.'];
+            let pi = 0, ci = 0, del = false;
+            const el = document.getElementById('typewriter');
+            function tick() { const phrase = phrases[pi]; if (!del) { ci++; el.textContent = phrase.slice(0, ci); if (ci === phrase.length) { del = true; setTimeout(tick, 1800); return } setTimeout(tick, 60 + Math.random() * 40) } else { ci--; el.textContent = phrase.slice(0, ci); if (ci === 0) { del = false; pi = (pi + 1) % phrases.length; setTimeout(tick, 400); return } setTimeout(tick, 30) } }
+            tick();
+        })();
+
+        /* ── SCROLL REVEAL ── */
+        const ro = new IntersectionObserver(e => e.forEach(x => { if (x.isIntersecting) x.target.classList.add('in') }), { threshold: .15 });
+        document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+        /* ── COUNT-UP ── */
+        function countUp(el, target) { let s = null; function step(ts) { if (!s) s = ts; const p = Math.min((ts - s) / 1200, 1); el.textContent = Math.round(p * p * target); if (p < 1) requestAnimationFrame(step); else el.textContent = target } requestAnimationFrame(step) }
+        const so = new IntersectionObserver(e => { e.forEach(x => { if (x.isIntersecting) { x.target.querySelectorAll('[data-target]').forEach(n => countUp(n, parseInt(n.dataset.target))); so.unobserve(x.target) } }) }, { threshold: .3 });
+        document.querySelector('.stats-row') && so.observe(document.querySelector('.stats-row'));
+
+        /* ── SKILLS ── */
+        const SKILLS = [
+            { name: 'HTML / CSS', emoji: '🎨', pct: 92, level: 'Ça coule de source', tip: 'Je pourrais en faire en dormant.', color: '#4F46E5', dur: '3.8s', delay: '0s', bd: '0s' },
+            { name: 'JavaScript', emoji: '⚡', pct: 74, level: 'On est intimes', tip: 'On se dispute parfois, mais on s\'aime.', color: '#F59E0B', dur: '4.5s', delay: '.4s', bd: '.6s' },
+            { name: 'React', emoji: '⚛️', pct: 65, level: 'Je m\'y retrouve', tip: 'Les hooks et moi, on apprend ensemble.', color: '#06B6D4', dur: '3.5s', delay: '.2s', bd: '1.2s' },
+            { name: 'Node.js', emoji: '🟢', pct: 48, level: 'On fait connaissance', tip: 'C\'est compliqué, mais prometteur.', color: '#10B981', dur: '5s', delay: '.6s', bd: '.3s' },
+            { name: 'Git', emoji: '🌿', pct: 82, level: 'Commit & confiance', tip: 'git push origin courage.', color: '#8B5CF6', dur: '4.2s', delay: '.1s', bd: '.9s' },
+            { name: 'Design UI', emoji: '✏️', pct: 70, level: 'L\'œil qui commence à voir', tip: 'Parfois trop de padding, mais c\'est ok.', color: '#EC4899', dur: '3.9s', delay: '.5s', bd: '1.5s' },
+        ];
+        function stars(pct) { const n = Math.round(pct / 20); return Array.from({ length: 5 }, (_, i) => `<span class="star${i < n ? ' lit' : ''}" style="--sd:${i * .08}s">★</span>`).join('') }
+        function renderSkills() {
+            document.getElementById('skills-grid').innerHTML = SKILLS.map(s => `
+    <div class="skill-card" style="--skill-color:${s.color};--dur:${s.dur};--delay:${s.delay};--bdelay:${s.bd}">
+      <div class="skill-tip">${s.tip}</div>
+      <div class="skill-top">
+        <div class="skill-info"><span class="skill-emoji">${s.emoji}</span><span class="skill-name">${s.name}</span></div>
+        <span class="skill-level-badge" style="--bdelay:${s.bd}">${s.level}</span>
+      </div>
+      <div class="skill-bar-track"><div class="skill-bar-inner" style="width:0%" data-w="${s.pct}%"></div></div>
+      <div class="skill-footer">
+        <div class="skill-stars">${stars(s.pct)}</div>
+        <span class="skill-xp">${s.pct} XP</span>
+      </div>
+    </div>
+  `).join('');
+            setTimeout(() => document.querySelectorAll('.skill-bar-inner').forEach(el => { el.style.width = el.dataset.w }), 200);
+        }
+
+        /* ── PROJECTS ── */
+        const SK = 'mvw_projects_v3'; let currentImg = null;
+        function getProjects() { try { return JSON.parse(localStorage.getItem(SK) || '[]') } catch { return [] } }
+        function saveAll(p) { localStorage.setItem(SK, JSON.stringify(p)) }
+        function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') }
+        function fmt(d) { return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) }
+
+        function renderPublic() {
+            const ps = getProjects();
+            const stat = document.getElementById('proj-stat'); if (stat) stat.dataset.target = ps.length;
+            const g = document.getElementById('public-grid');
+            if (!ps.length) { g.innerHTML = '<div class="proj-empty"><span class="proj-empty-icon">🚀</span>Les projets arrivent bientôt !</div>'; return }
+            g.innerHTML = ps.map(p => `
+    <div class="proj-card" onclick="${p.url ? `window.open('${esc(p.url)}','_blank')` : ''}">
+      <div class="proj-img">${p.img ? `<img src="${p.img}" alt="${esc(p.name)}">` : '✨'}</div>
+      <div class="proj-body">
+        ${p.tag ? `<span class="proj-tag">🏷 ${esc(p.tag)}</span>` : ''}
+        <div class="proj-name">${esc(p.name)}</div>
+        <div class="proj-desc">${esc(p.desc || '')}</div>
+        <div class="proj-meta">
+          <span class="proj-date">📅 ${fmt(p.created)}</span>
+          ${p.url ? `<a href="${esc(p.url)}" target="_blank" class="proj-link" onclick="event.stopPropagation()">Voir ↗</a>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+        }
+        function renderDash() {
+            const ps = getProjects();
+            document.getElementById('proj-count').textContent = `${ps.length} projet${ps.length !== 1 ? 's' : ''} publié${ps.length !== 1 ? 's' : ''}`;
+            const g = document.getElementById('dash-grid');
+            if (!ps.length) { g.innerHTML = '<div class="dash-empty"><div style="font-size:36px;margin-bottom:.75rem">📭</div>Aucun projet encore. Ajoutes-en un !</div>'; return }
+            g.innerHTML = ps.map((p, i) => `
+    <div class="dash-card">
+      <div class="dc-img">${p.img ? `<img src="${p.img}" alt="">` : '✨'}</div>
+      <div class="dc-body">
+        ${p.tag ? `<div class="dc-tag">🏷 ${esc(p.tag)}</div>` : ''}
+        <div class="dc-name">${esc(p.name)}</div>
+        <div class="dc-desc">${esc(p.desc || 'Pas de description.')}</div>
+        <div class="dc-meta"><span>📅 Créé le ${fmt(p.created)}</span><span>🔄 Modifié le ${fmt(p.updated)}</span></div>
+        <div class="dc-actions">
+          <button class="btn-edit" onclick="editProject(${i})">✏️ Modifier</button>
+          <button class="btn-del" onclick="delProject(${i})">🗑 Supprimer</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+        }
+
+        function openLogin() { document.getElementById('login-overlay').classList.add('show'); setTimeout(() => document.getElementById('pwd-input').focus(), 100) }
+        function closeLogin() { document.getElementById('login-overlay').classList.remove('show'); document.getElementById('pwd-input').value = ''; document.getElementById('login-err').style.display = 'none' }
+        function doLogin() { if (document.getElementById('pwd-input').value === 'mvw2025') { closeLogin(); document.getElementById('dashboard').classList.add('show'); renderDash() } else document.getElementById('login-err').style.display = 'block' }
+        function logout() { document.getElementById('dashboard').classList.remove('show'); renderPublic() }
+        function openPM(idx) {
+            currentImg = null;
+            document.getElementById('pm-idx').value = idx !== undefined ? idx : '';
+            document.getElementById('pm-modal-title').textContent = idx !== undefined ? 'Modifier le projet' : 'Nouveau projet';
+            const img = document.getElementById('img-preview'); img.style.display = 'none'; document.getElementById('img-placeholder').style.display = 'block'; document.getElementById('clear-img-btn').style.display = 'none';
+            if (idx !== undefined) { const p = getProjects()[idx]; document.getElementById('pm-name').value = p.name || ''; document.getElementById('pm-tag').value = p.tag || ''; document.getElementById('pm-desc').value = p.desc || ''; document.getElementById('pm-url').value = p.url || ''; if (p.img) { img.src = p.img; img.style.display = 'block'; document.getElementById('img-placeholder').style.display = 'none'; document.getElementById('clear-img-btn').style.display = 'block'; currentImg = p.img } }
+            else { ['pm-name', 'pm-tag', 'pm-desc', 'pm-url'].forEach(id => document.getElementById(id).value = '') }
+            document.getElementById('pm-overlay').classList.add('show'); setTimeout(() => document.getElementById('pm-name').focus(), 100);
+        }
+        function closePM() { document.getElementById('pm-overlay').classList.remove('show') }
+        function editProject(i) { openPM(i) }
+        function delProject(i) { if (!confirm('Supprimer ce projet définitivement ?')) return; const ps = getProjects(); ps.splice(i, 1); saveAll(ps); renderDash() }
+        function handleImg(e) { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => { currentImg = ev.target.result; const img = document.getElementById('img-preview'); img.src = currentImg; img.style.display = 'block'; document.getElementById('img-placeholder').style.display = 'none'; document.getElementById('clear-img-btn').style.display = 'block' }; r.readAsDataURL(f) }
+        function clearImg() { currentImg = null; const img = document.getElementById('img-preview'); img.src = ''; img.style.display = 'none'; document.getElementById('img-placeholder').style.display = 'block'; document.getElementById('clear-img-btn').style.display = 'none' }
+        function saveProject() {
+            const name = document.getElementById('pm-name').value.trim(); if (!name) { alert('Le nom du projet est requis !'); return }
+            const ps = getProjects(), idx = document.getElementById('pm-idx').value, now = new Date().toISOString();
+            const proj = { name, tag: document.getElementById('pm-tag').value.trim(), desc: document.getElementById('pm-desc').value.trim(), url: document.getElementById('pm-url').value.trim(), img: currentImg || null, updated: now, created: idx !== '' ? (ps[parseInt(idx)].created || now) : now };
+            if (idx !== '') { ps[parseInt(idx)] = proj } else { ps.push(proj) }
+            saveAll(ps); closePM(); renderDash();
+        }
+
+        renderSkills(); renderPublic();
+    </script>
+</body>
+
+</html>
