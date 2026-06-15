@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVW — Développeur Web</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg-soft:#F8F7F4;--bg-card:#FAFAF8;
+  --text:#18181B;--muted:#71717A;--border:#E4E4E7;
+  --accent:#4F46E5;--a2:#10B981;--a3:#F59E0B;--a4:#EF4444;
+  --font:'Inter',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);overflow-x:hidden}
+
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;height:56px;background:rgba(255,255,255,0.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-size:16px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:8px}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:breathe 2.2s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.6}}
+.nav-links{display:flex;gap:1.25rem;list-style:none}
+.nav-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;font-weight:500}
+.nav-links a:hover{color:var(--text)}
+@media(max-width:600px){.nav-links{display:none}}
+.btn-admin{font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);padding:6px 12px;border-radius:20px;background:none;font-family:var(--font);transition:all .2s;color:var(--muted);white-space:nowrap}
+.btn-admin:hover{border-color:var(--accent);color:var(--accent)}
+
+.hero{padding:7rem 1.25rem 4rem;max-width:860px;margin:0 auto;position:relative;z-index:1}
+@media(min-width:640px){.hero{padding:9rem 2.5rem 6rem}}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:#EEF2FF;color:var(--accent);padding:5px 14px;border-radius:20px;margin-bottom:1.5rem;border:1px solid #C7D2FE;animation:badge-float 3s ease-in-out infinite}
+@keyframes badge-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:breathe 2.2s ease-in-out infinite}
+.hero-title{font-size:clamp(2.2rem,8vw,4rem);font-weight:800;line-height:1.07;letter-spacing:-.04em;margin-bottom:1.25rem}
+.wave{display:inline-block;animation:wave 2.5s ease-in-out infinite;transform-origin:70% 70%}
+@keyframes wave{0%,100%{transform:rotate(0)}20%{transform:rotate(20deg)}40%{transform:rotate(-8deg)}60%{transform:rotate(12deg)}80%{transform:rotate(-4deg)}}
+.hi{color:var(--accent)}
+.cursor{display:inline-block;width:3px;height:.85em;background:var(--accent);margin-left:3px;vertical-align:middle;animation:blink .9s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.hero-desc{font-size:15px;color:var(--muted);line-height:1.75;max-width:500px;margin-bottom:2rem}
+@media(min-width:640px){.hero-desc{font-size:17px}}
+.hero-ctas{display:flex;gap:10px;flex-wrap:wrap}
+.cta-main{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:transform .2s;animation:cta-pulse 3s ease-in-out infinite}
+@keyframes cta-pulse{0%,100%{box-shadow:0 0 0 0 rgba(79,70,229,0)}50%{box-shadow:0 0 0 8px rgba(79,70,229,.12)}}
+.cta-main:hover{transform:translateY(-2px)}
+.cta-ghost{display:inline-flex;align-items:center;gap:8px;background:none;color:var(--text);padding:11px 20px;border-radius:10px;border:1.5px solid var(--border);font-size:13px;font-weight:600;text-decoration:none;transition:all .2s}
+.cta-ghost:hover{border-color:var(--text)}
+.floating-pills{position:absolute;top:0;right:0;width:300px;height:100%;pointer-events:none;display:none}
+@media(min-width:900px){.floating-pills{display:block}}
+.pill{position:absolute;background:#fff;border:1.5px solid var(--border);border-radius:30px;padding:7px 14px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,.06);white-space:nowrap}
+
+.sec{max-width:860px;margin:0 auto;padding:3.5rem 1.25rem;position:relative;z-index:1}
+@media(min-width:640px){.sec{padding:5rem 2.5rem}}
+.sec-divider{border:none;border-top:1px solid var(--border);max-width:860px;margin:0 auto;position:relative;z-index:1}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem}
+.sec-heading{font-size:1.4rem;font-weight:800;letter-spacing:-.03em;margin-bottom:2rem}
+@media(min-width:640px){.sec-heading{font-size:1.6rem}}
+
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:2rem}
+@media(min-width:640px){.stats-row{gap:14px;margin-bottom:3rem}}
+.stat-card{background:var(--bg-card);border:1.5px solid var(--border);border-radius:12px;padding:1rem;text-align:center}
+.stat-num{font-size:1.6rem;font-weight:800;letter-spacing:-.04em;color:var(--accent)}
+@media(min-width:640px){.stat-num{font-size:2rem}}
+.stat-label{font-size:10px;color:var(--muted);margin-top:2px}
+@media(min-width:640px){.stat-label{font-size:12px}}
+
+.skills-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:480px){.skills-grid{grid-template-columns:1fr 1fr}}
+.skill-card{background:var(--bg-card);border:1.5px solid var(--border);border-radius:14px;padding:1.1rem 1.25rem;transition:transform .2s,border-color .2s,box-shadow .2s;animation:card-breathe var(--dur,4s) ease-in-out infinite;animation-delay:var(--delay,0s);cursor:default;position:relative}
+@keyframes card-breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.skill-card:hover{transform:translateY(-6px) !important;border-color:var(--skill-color);box-shadow:0 12px 28px color-mix(in srgb,var(--skill-color) 18%,transparent)}
+.skill-tip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:11px;font-weight:500;padding:5px 10px;border-radius:8px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;z-index:10}
+.skill-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--text)}
+.skill-card:hover .skill-tip{opacity:1}
+.skill-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;gap:8px}
+.skill-info{display:flex;align-items:center;gap:8px}
+.skill-emoji{font-size:20px}
+.skill-name{font-size:13px;font-weight:700}
+.skill-level-badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;background:color-mix(in srgb,var(--skill-color) 13%,transparent);color:var(--skill-color);border:1px solid color-mix(in srgb,var(--skill-color) 25%,transparent);white-space:nowrap;flex-shrink:0;position:relative;overflow:hidden}
+.skill-level-badge::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:badge-sweep 3.5s ease-in-out infinite;animation-delay:var(--bdelay,0s)}
+@keyframes badge-sweep{0%,70%,100%{left:-60%}35%{left:130%}}
+.skill-bar-track{height:7px;background:var(--border);border-radius:8px;overflow:hidden}
+.skill-bar-inner{height:100%;border-radius:8px;background:var(--skill-color);position:relative;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.skill-bar-inner::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);animation:shimmer 2.5s ease-in-out infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+.skill-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.skill-stars{display:flex;gap:2px}
+.star{font-size:11px;opacity:.18}.star.lit{opacity:1;animation:star-pop .4s ease var(--sd,0s) both}
+@keyframes star-pop{0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+.skill-xp{font-size:11px;font-weight:600;color:var(--muted)}
+
+.projects-grid{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:500px){.projects-grid{grid-template-columns:1fr 1fr}}
+.proj-card{background:var(--bg-card);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;transition:transform .25s,box-shadow .25s;cursor:pointer;display:flex;flex-direction:column}
+.proj-card:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 14px 36px rgba(0,0,0,.09)}
+.proj-img{width:100%;height:130px;background:linear-gradient(135deg,#EEF2FF,#E0E7FF);display:flex;align-items:center;justify-content:center;font-size:36px;border-bottom:1px solid var(--border);overflow:hidden;position:relative}
+.proj-img img{width:100%;height:100%;object-fit:cover}
+.proj-img::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.3),transparent);animation:img-shimmer 3s ease-in-out infinite}
+@keyframes img-shimmer{0%,100%{opacity:0}50%{opacity:1}}
+.proj-body{padding:1rem;flex:1;display:flex;flex-direction:column;gap:5px}
+.proj-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:#EEF2FF;padding:3px 9px;border-radius:20px;width:fit-content}
+.proj-name{font-size:14px;font-weight:700;letter-spacing:-.01em}
+.proj-desc{font-size:12px;color:var(--muted);line-height:1.6;flex:1}
+.proj-meta{display:flex;gap:10px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);align-items:center}
+.proj-date{font-size:10px;color:var(--muted)}
+.proj-link{font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;margin-left:auto}
+.proj-empty{grid-column:1/-1;padding:2.5rem;text-align:center;color:var(--muted);font-size:14px;border:1.5px dashed var(--border);border-radius:16px}
+.proj-empty-icon{font-size:32px;margin-bottom:.75rem;display:block;animation:orbit 4s linear infinite;transform-origin:center}
+@keyframes orbit{0%{transform:rotate(0) translateX(6px) rotate(0)}100%{transform:rotate(360deg) translateX(6px) rotate(-360deg)}}
+
+.contact-wrap{border:1.5px solid var(--border);border-radius:16px;padding:2rem 1.5rem;display:flex;flex-direction:column;align-items:flex-start;gap:1.5rem;background:var(--bg-card);position:relative;overflow:hidden}
+@media(min-width:640px){.contact-wrap{flex-direction:row;align-items:center;padding:3rem;justify-content:space-between}}
+.contact-wrap::before{content:'';position:absolute;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(79,70,229,.07) 0%,transparent 70%);right:-60px;top:-80px;animation:blob 6s ease-in-out infinite}
+.contact-wrap::after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.06) 0%,transparent 70%);left:-40px;bottom:-60px;animation:blob 8s ease-in-out infinite reverse}
+@keyframes blob{0%,100%{transform:scale(1) translate(0,0)}33%{transform:scale(1.1) translate(10px,-10px)}66%{transform:scale(.95) translate(-5px,8px)}}
+.contact-emoji{font-size:40px;margin-bottom:.75rem;display:block;animation:wobble 3s ease-in-out infinite}
+@keyframes wobble{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.contact-title{font-size:1.4rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.5rem}
+@media(min-width:640px){.contact-title{font-size:1.6rem}}
+.contact-sub{font-size:13px;color:var(--muted);line-height:1.7}
+.contact-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;transition:all .2s;position:relative;z-index:1;flex-shrink:0}
+.contact-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(79,70,229,.3)}
+
+footer{border-top:1px solid var(--border);padding:1.5rem 1.25rem;max-width:860px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;flex-wrap:wrap;gap:8px}
+@media(min-width:640px){footer{padding:2rem 2.5rem}}
+.footer-copy{font-size:11px;color:var(--muted)}
+
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+.overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem}
+.overlay.show{display:flex}
+.login-box{background:#fff;border-radius:16px;width:100%;max-width:400px;border:1px solid var(--border);overflow:hidden}
+.login-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.login-title{font-size:15px;font-weight:700}
+.btn-x{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1;padding:2px}
+.btn-x:hover{color:var(--text)}
+.login-body{padding:1.5rem}
+.form-label{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.form-input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font);color:var(--text);outline:none;transition:border-color .2s;background:#fff}
+.form-input:focus{border-color:var(--accent)}
+textarea.form-input{resize:vertical;min-height:80px}
+.form-error{font-size:13px;color:#EF4444;margin-top:.4rem;display:none}
+.btn-submit{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;font-family:var(--font);cursor:pointer;transition:all .2s;margin-top:.75rem}
+.btn-submit:hover{opacity:.9;transform:translateY(-1px)}
+
+#dashboard{display:none;position:fixed;inset:0;z-index:200;background:var(--bg-soft);flex-direction:column;overflow-y:auto}
+#dashboard.show{display:flex}
+.dash-nav{background:#fff;border-bottom:1px solid var(--border);padding:0 1.25rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+@media(min-width:640px){.dash-nav{padding:0 2rem}}
+.dash-nav-logo{font-size:14px;font-weight:800;letter-spacing:-.02em}
+.dash-nav-logo span{color:var(--accent)}
+.btn-logout{background:none;border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .2s}
+.btn-logout:hover{border-color:var(--text)}
+.dash-body{padding:1.5rem 1.25rem;max-width:940px;margin:0 auto;width:100%}
+@media(min-width:640px){.dash-body{padding:2.5rem}}
+.dash-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;gap:12px}
+@media(min-width:480px){.dash-header{align-items:center}}
+.dash-title{font-size:19px;font-weight:800;letter-spacing:-.03em}
+@media(min-width:640px){.dash-title{font-size:22px}}
+.dash-subtitle{font-size:12px;color:var(--muted);margin-top:2px}
+.btn-add{display:flex;align-items:center;gap:5px;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
+@media(min-width:480px){.btn-add{font-size:13px;padding:10px 18px}}
+.btn-add:hover{opacity:.9;transform:translateY(-1px)}
+.dash-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:480px){.dash-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:720px){.dash-grid{grid-template-columns:repeat(3,1fr)}}
+.dash-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;overflow:hidden;transition:box-shadow .2s}
+.dash-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.07)}
+.dc-img{width:100%;height:100px;background:linear-gradient(135deg,#EEF2FF,#E0E7FF);display:flex;align-items:center;justify-content:center;font-size:30px;border-bottom:1px solid var(--border);overflow:hidden}
+.dc-img img{width:100%;height:100%;object-fit:cover}
+.dc-body{padding:.9rem}
+.dc-tag{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.dc-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.dc-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:.7rem}
+.dc-meta{font-size:10px;color:var(--muted);display:flex;flex-direction:column;gap:2px;padding-top:.5rem;border-top:1px solid var(--border)}
+.dc-actions{display:flex;gap:6px;margin-top:.7rem}
+.btn-edit,.btn-del{flex:1;padding:6px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);border:1.5px solid var(--border);background:none;transition:all .15s}
+.btn-edit:hover{border-color:var(--accent);color:var(--accent)}
+.btn-del:hover{border-color:#EF4444;color:#EF4444}
+.dash-empty{grid-column:1/-1;padding:2.5rem;text-align:center;color:var(--muted);font-size:14px;border:1.5px dashed var(--border);border-radius:14px;background:#fff}
+
+.pm-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem}
+.pm-overlay.show{display:flex}
+.pm-box{background:#fff;border-radius:16px;width:100%;max-width:520px;border:1px solid var(--border);overflow:hidden;max-height:92vh;overflow-y:auto}
+.pm-header{padding:1.1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.pm-title{font-size:15px;font-weight:700}
+.pm-body{padding:1.25rem;display:flex;flex-direction:column;gap:.9rem}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.img-preview-wrap{width:100%;height:110px;border-radius:10px;border:1.5px dashed var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg-soft);cursor:pointer;transition:border-color .2s;position:relative}
+.img-preview-wrap:hover{border-color:var(--accent)}
+.img-preview-wrap img{width:100%;height:100%;object-fit:cover;display:none}
+.img-placeholder{text-align:center;color:var(--muted);font-size:13px;pointer-events:none}
+.img-ph-icon{font-size:26px;margin-bottom:4px}
+input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.form-row{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:420px){.form-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div id="public-site">
+  <nav>
+    <div class="nav-logo"><span class="nav-dot"></span> MVW</div>
+    <ul class="nav-links">
+      <li><a href="#about">À propos</a></li>
+      <li><a href="#skills">Compétences</a></li>
+      <li><a href="#projects">Projets</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="btn-admin" onclick="openLogin()">⚙ Admin</button>
+  </nav>
+
+  <div class="hero" id="about">
+    <div class="floating-pills">
+      <div class="pill" id="p1">🎨 CSS</div>
+      <div class="pill" id="p2">⚡ JS</div>
+      <div class="pill" id="p3">⚛️ React</div>
+      <div class="pill" id="p4">🟢 Node</div>
+      <div class="pill" id="p5">🌿 Git</div>
+    </div>
+    <div class="hero-badge"><span class="badge-dot"></span>&nbsp;Disponible pour collaborer</div>
+    <h1 class="hero-title">
+      Salut, moi c'est<br>
+      <span class="hi">MVW</span> <span class="wave">👋</span><br>
+      <span id="typewriter" style="color:var(--muted);font-size:clamp(1.2rem,5vw,2rem);font-weight:600"></span><span class="cursor"></span>
+    </h1>
+    <p class="hero-desc">Je développe des pages web pour le plaisir. Des petits projets utiles, des expériences, des outils — pas une agence, juste quelqu'un qui aime vraiment coder.</p>
+    <div class="hero-ctas">
+      <a href="#projects" class="cta-main">Voir mes projets →</a>
+      <a href="#contact" class="cta-ghost">Me contacter</a>
+    </div>
+  </div>
+
+  <hr class="sec-divider">
+
+  <div class="sec" id="skills">
+    <p class="sec-label reveal">Compétences</p>
+    <h2 class="sec-heading reveal">Mon arbre de talents 🌳</h2>
+    <div class="stats-row reveal">
+      <div class="stat-card"><div class="stat-num" data-target="6">0</div><div class="stat-label">Technos dans le sac</div></div>
+      <div class="stat-card"><div class="stat-num" data-target="3" style="color:var(--a2)">0</div><div class="stat-label">Années de pratique</div></div>
+      <div class="stat-card"><div class="stat-num" data-target="0" id="proj-stat" style="color:var(--a3)">0</div><div class="stat-label">Projets créés</div></div>
+    </div>
+    <div class="skills-grid" id="skills-grid"></div>
+  </div>
+
+  <hr class="sec-divider">
+
+  <div class="sec" id="projects">
+    <p class="sec-label reveal">Projets</p>
+    <h2 class="sec-heading reveal">Ce que j'ai construit ✨</h2>
+    <div class="projects-grid" id="public-grid">
+      <div class="proj-empty"><span class="proj-empty-icon">🚀</span>Les projets arrivent bientôt !</div>
+    </div>
+  </div>
+
+  <hr class="sec-divider">
+
+  <div class="sec" id="contact">
+    <div class="contact-wrap reveal">
+      <div>
+        <span class="contact-emoji">✉️</span>
+        <h2 class="contact-title">Parlons-en !</h2>
+        <p class="contact-sub">Une question, une idée, ou juste envie de dire bonjour ? Je réponds.</p>
+      </div>
+      <a href="mailto:mohamedvanwichelen3@gmail.com" class="contact-btn">Envoyer un email ↗</a>
+    </div>
+  </div>
+
+  <footer>
+    <span class="footer-copy">© 2025 MVW — fait avec ☕ & curiosité</span>
+    <span class="footer-copy" style="cursor:pointer" onclick="openLogin()">·</span>
+  </footer>
+</div>
+
+<!-- LOGIN -->
+<div class="overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-header"><span class="login-title">🔐 Accès admin</span><button class="btn-x" onclick="closeLogin()">×</button></div>
+    <div class="login-body">
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" class="form-input" id="pwd-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+        <p class="form-error" id="login-err">Mot de passe incorrect.</p>
+      </div>
+      <button class="btn-submit" onclick="doLogin()">Accéder au dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="dash-nav">
+    <div class="dash-nav-logo">MVW <span>Dashboard</span></div>
+    <button class="btn-logout" onclick="logout()">← Retour</button>
+  </div>
+  <div class="dash-body">
+    <div class="dash-header">
+      <div><div class="dash-title">Mes projets</div><div class="dash-subtitle" id="proj-count">0 projet publié</div></div>
+      <button class="btn-add" onclick="openPM()">+ Ajouter</button>
+    </div>
+    <div class="dash-grid" id="dash-grid"></div>
+  </div>
+</div>
+
+<!-- PROJECT MODAL -->
+<div class="pm-overlay" id="pm-overlay">
+  <div class="pm-box">
+    <div class="pm-header"><span class="pm-title" id="pm-modal-title">Nouveau projet</span><button class="btn-x" onclick="closePM()">×</button></div>
+    <div class="pm-body">
+      <input type="hidden" id="pm-idx">
+      <div class="form-group">
+        <label class="form-label">Image (facultatif)</label>
+        <div class="img-preview-wrap">
+          <input type="file" accept="image/*" onchange="handleImg(event)">
+          <img id="img-preview" alt="">
+          <div class="img-placeholder" id="img-placeholder"><div class="img-ph-icon">🖼️</div><div>Ajouter une image</div><div style="font-size:11px;opacity:.7;margin-top:2px">JPG, PNG, GIF…</div></div>
+        </div>
+        <button type="button" onclick="clearImg()" id="clear-img-btn" style="display:none;font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--font);padding:2px 0">✕ Supprimer l'image</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nom *</label><input type="text" class="form-input" id="pm-name" placeholder="Mon super outil"></div>
+        <div class="form-group"><label class="form-label">Tag</label><input type="text" class="form-input" id="pm-tag" placeholder="Outil, Jeu…"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="pm-desc" placeholder="Décris ce que fait ce projet…"></textarea></div>
+      <div class="form-group"><label class="form-label">Lien</label><input type="url" class="form-input" id="pm-url" placeholder="https://mon-projet.com"></div>
+      <button class="btn-submit" onclick="saveProject()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas=document.getElementById('bg-canvas'),ctx=canvas.getContext('2d');
+  let W,H;const COLORS=['#4F46E5','#10B981','#F59E0B','#EF4444','#8B5CF6'];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  class P{constructor(){this.reset(true)}reset(init){this.x=Math.random()*W;this.y=init?Math.random()*H:H+10;this.r=Math.random()*3+1;this.c=COLORS[Math.floor(Math.random()*COLORS.length)];this.vx=(Math.random()-.5)*.4;this.vy=-(Math.random()*.5+.2);this.pulse=Math.random()*Math.PI*2}update(){this.x+=this.vx;this.y+=this.vy;this.pulse+=.02;if(this.y<-10)this.reset(false);if(this.x<-10||this.x>W+10){this.x=Math.random()*W;this.y=H+10}}draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=this.c;ctx.globalAlpha=.18+Math.sin(this.pulse)*.1;ctx.fill()}}
+  const ps=Array.from({length:50},()=>new P());
+  function loop(){ctx.clearRect(0,0,W,H);ctx.globalAlpha=1;ps.forEach(p=>{p.update();p.draw()});requestAnimationFrame(loop)}
+  loop();
+})();
+
+(function(){
+  const pills=[{id:'p1',x:50,y:100,ax:.7,ay:.5},{id:'p2',x:180,y:50,ax:.5,ay:.8},{id:'p3',x:120,y:180,ax:.9,ay:.4},{id:'p4',x:230,y:140,ax:.6,ay:.7},{id:'p5',x:60,y:240,ax:.8,ay:.6}];
+  let t=0;function animate(){t+=.012;pills.forEach(p=>{const el=document.getElementById(p.id);if(!el)return;el.style.left=p.x+'px';el.style.top=p.y+'px';el.style.transform=`translate(${Math.sin(t*p.ax)*12}px,${Math.cos(t*p.ay)*9}px)`});requestAnimationFrame(animate)}animate();
+})();
+
+(function(){
+  const phrases=['je code pour le fun.','je construis des outils.','j\'explore de nouvelles idées.','j\'apprends chaque jour.'];
+  let pi=0,ci=0,del=false;const el=document.getElementById('typewriter');
+  function tick(){const p=phrases[pi];if(!del){ci++;el.textContent=p.slice(0,ci);if(ci===p.length){del=true;setTimeout(tick,1800);return}setTimeout(tick,60+Math.random()*40)}else{ci--;el.textContent=p.slice(0,ci);if(ci===0){del=false;pi=(pi+1)%phrases.length;setTimeout(tick,400);return}setTimeout(tick,30)}}
+  tick();
+})();
+
+const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+function countUp(el,target){let s=null;function step(ts){if(!s)s=ts;const p=Math.min((ts-s)/1200,1);el.textContent=Math.round(p*p*target);if(p<1)requestAnimationFrame(step);else el.textContent=target}requestAnimationFrame(step)}
+const so=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.querySelectorAll('[data-target]').forEach(n=>countUp(n,parseInt(n.dataset.target)));so.unobserve(x.target)}})},{threshold:.3});
+document.querySelector('.stats-row')&&so.observe(document.querySelector('.stats-row'));
+
+const SKILLS=[
+  {name:'HTML / CSS',  emoji:'🎨', stars:5, pct:96, level:'Ça coule de source',         tip:'Je pourrais en faire en dormant.',         color:'#4F46E5',dur:'3.8s',delay:'0s', bd:'0s'},
+  {name:'JavaScript',  emoji:'⚡', stars:2, pct:42, level:'On fait connaissance',        tip:'On se dispute parfois, mais on apprend.',  color:'#F59E0B',dur:'4.5s',delay:'.4s',bd:'.6s'},
+  {name:'React',       emoji:'⚛️', stars:2, pct:38, level:'J\'ose y toucher',            tip:'Les hooks et moi, c\'est compliqué.',      color:'#06B6D4',dur:'3.5s',delay:'.2s',bd:'1.2s'},
+  {name:'Node.js',     emoji:'🟢', stars:1, pct:18, level:'On vient de se croiser',     tip:'C\'est prometteur, on verra.',              color:'#10B981',dur:'5s',  delay:'.6s',bd:'.3s'},
+  {name:'Git',         emoji:'🌿', stars:4, pct:80, level:'Commit & confiance',          tip:'git push origin courage.',                 color:'#8B5CF6',dur:'4.2s',delay:'.1s',bd:'.9s'},
+  {name:'Design UI',   emoji:'✏️', stars:3, pct:60, level:'L\'oeil qui commence à voir', tip:'Parfois trop de padding, mais c\'est ok.', color:'#EC4899',dur:'3.9s',delay:'.5s',bd:'1.5s'},
+];
+function renderStars(n){return Array.from({length:5},(_,i)=>`<span class="star${i<n?' lit':''}" style="--sd:${i*.08}s">★</span>`).join('')}
+function renderSkills(){
+  document.getElementById('skills-grid').innerHTML=SKILLS.map(s=>`
+    <div class="skill-card" style="--skill-color:${s.color};--dur:${s.dur};--delay:${s.delay}">
+      <div class="skill-tip">${s.tip}</div>
+      <div class="skill-top">
+        <div class="skill-info"><span class="skill-emoji">${s.emoji}</span><span class="skill-name">${s.name}</span></div>
+        <span class="skill-level-badge" style="--bdelay:${s.bd}">${s.level}</span>
+      </div>
+      <div class="skill-bar-track"><div class="skill-bar-inner" style="width:0%" data-w="${s.pct}%"></div></div>
+      <div class="skill-footer">
+        <div class="skill-stars">${renderStars(s.stars)}</div>
+        <span class="skill-xp">${s.stars}/5 ⭐</span>
+      </div>
+    </div>
+  `).join('');
+  setTimeout(()=>document.querySelectorAll('.skill-bar-inner').forEach(el=>{el.style.width=el.dataset.w}),200);
+}
+
+const SK='mvw_projects_v3';let currentImg=null;
+function getProjects(){try{return JSON.parse(localStorage.getItem(SK)||'[]')}catch{return[]}}
+function saveAll(p){localStorage.setItem(SK,JSON.stringify(p))}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function fmt(d){return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})}
+
+function renderPublic(){
+  const ps=getProjects();
+  const stat=document.getElementById('proj-stat');if(stat)stat.dataset.target=ps.length;
+  const g=document.getElementById('public-grid');
+  if(!ps.length){g.innerHTML='<div class="proj-empty"><span class="proj-empty-icon">🚀</span>Les projets arrivent bientôt !</div>';return}
+  g.innerHTML=ps.map(p=>`
+    <div class="proj-card" onclick="${p.url?`window.open('${esc(p.url)}','_blank')`:''}">
+      <div class="proj-img">${p.img?`<img src="${p.img}" alt="${esc(p.name)}">`:'✨'}</div>
+      <div class="proj-body">
+        ${p.tag?`<span class="proj-tag">🏷 ${esc(p.tag)}</span>`:''}
+        <div class="proj-name">${esc(p.name)}</div>
+        <div class="proj-desc">${esc(p.desc||'')}</div>
+        <div class="proj-meta">
+          <span class="proj-date">📅 ${fmt(p.created)}</span>
+          ${p.url?`<a href="${esc(p.url)}" target="_blank" class="proj-link" onclick="event.stopPropagation()">Voir ↗</a>`:''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function renderDash(){
+  const ps=getProjects();
+  document.getElementById('proj-count').textContent=`${ps.length} projet${ps.length!==1?'s':''} publié${ps.length!==1?'s':''}`;
+  const g=document.getElementById('dash-grid');
+  if(!ps.length){g.innerHTML='<div class="dash-empty"><div style="font-size:34px;margin-bottom:.75rem">📭</div>Aucun projet encore. Ajoutes-en un !</div>';return}
+  g.innerHTML=ps.map((p,i)=>`
+    <div class="dash-card">
+      <div class="dc-img">${p.img?`<img src="${p.img}" alt="">`:'✨'}</div>
+      <div class="dc-body">
+        ${p.tag?`<div class="dc-tag">🏷 ${esc(p.tag)}</div>`:''}
+        <div class="dc-name">${esc(p.name)}</div>
+        <div class="dc-desc">${esc(p.desc||'Pas de description.')}</div>
+        <div class="dc-meta"><span>📅 Créé le ${fmt(p.created)}</span><span>🔄 Modifié le ${fmt(p.updated)}</span></div>
+        <div class="dc-actions">
+          <button class="btn-edit" onclick="editProject(${i})">✏️ Modifier</button>
+          <button class="btn-del" onclick="delProject(${i})">🗑 Suppr.</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openLogin(){document.getElementById('login-overlay').classList.add('show');setTimeout(()=>document.getElementById('pwd-input').focus(),100)}
+function closeLogin(){document.getElementById('login-overlay').classList.remove('show');document.getElementById('pwd-input').value='';document.getElementById('login-err').style.display='none'}
+function doLogin(){if(document.getElementById('pwd-input').value==='mvw2025'){closeLogin();document.getElementById('dashboard').classList.add('show');renderDash()}else document.getElementById('login-err').style.display='block'}
+function logout(){document.getElementById('dashboard').classList.remove('show');renderPublic()}
+function openPM(idx){
+  currentImg=null;
+  document.getElementById('pm-idx').value=idx!==undefined?idx:'';
+  document.getElementById('pm-modal-title').textContent=idx!==undefined?'Modifier':'Nouveau projet';
+  const img=document.getElementById('img-preview');img.style.display='none';document.getElementById('img-placeholder').style.display='block';document.getElementById('clear-img-btn').style.display='none';
+  if(idx!==undefined){const p=getProjects()[idx];document.getElementById('pm-name').value=p.name||'';document.getElementById('pm-tag').value=p.tag||'';document.getElementById('pm-desc').value=p.desc||'';document.getElementById('pm-url').value=p.url||'';if(p.img){img.src=p.img;img.style.display='block';document.getElementById('img-placeholder').style.display='none';document.getElementById('clear-img-btn').style.display='block';currentImg=p.img}}
+  else{['pm-name','pm-tag','pm-desc','pm-url'].forEach(id=>document.getElementById(id).value='')}
+  document.getElementById('pm-overlay').classList.add('show');setTimeout(()=>document.getElementById('pm-name').focus(),100);
+}
+function closePM(){document.getElementById('pm-overlay').classList.remove('show')}
+function editProject(i){openPM(i)}
+function delProject(i){if(!confirm('Supprimer ce projet définitivement ?'))return;const ps=getProjects();ps.splice(i,1);saveAll(ps);renderDash()}
+function handleImg(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{currentImg=ev.target.result;const img=document.getElementById('img-preview');img.src=currentImg;img.style.display='block';document.getElementById('img-placeholder').style.display='none';document.getElementById('clear-img-btn').style.display='block'};r.readAsDataURL(f)}
+function clearImg(){currentImg=null;const img=document.getElementById('img-preview');img.src='';img.style.display='none';document.getElementById('img-placeholder').style.display='block';document.getElementById('clear-img-btn').style.display='none'}
+function saveProject(){
+  const name=document.getElementById('pm-name').value.trim();if(!name){alert('Le nom du projet est requis !');return}
+  const ps=getProjects(),idx=document.getElementById('pm-idx').value,now=new Date().toISOString();
+  const proj={name,tag:document.getElementById('pm-tag').value.trim(),desc:document.getElementById('pm-desc').value.trim(),url:document.getElementById('pm-url').value.trim(),img:currentImg||null,updated:now,created:idx!==''?(ps[parseInt(idx)].created||now):now};
+  if(idx!==''){ps[parseInt(idx)]=proj}else{ps.push(proj)}
+  saveAll(ps);closePM();renderDash();
+}
+
+renderSkills();renderPublic();
+</script>
+</body>
+</html>
